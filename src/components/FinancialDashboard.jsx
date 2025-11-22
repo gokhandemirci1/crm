@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { DollarSign, TrendingUp, Calendar, BarChart3, Share2, Building2, Receipt, Wallet } from 'lucide-react'
+import { DollarSign, TrendingUp, Calendar, BarChart3, Share2, Building2, Receipt, Wallet, UserCircle } from 'lucide-react'
 
 function FinancialDashboard({ users }) {
   const [selectedPeriod, setSelectedPeriod] = useState('total')
@@ -104,12 +104,24 @@ function FinancialDashboard({ users }) {
 
   // Gider Kalemleri Hesaplama Fonksiyonu
   const calculateExpenses = (salesAmount) => {
-    const socialMedia = salesAmount * 0.40  // %40
-    const companyProfit = salesAmount * 0.60  // %60
-    const tax = companyProfit * 0.20  // Karın %20'si
-    const netProfit = companyProfit - tax  // Kalan kar
+    // 1. Öğretmene Giden: Toplam satışın %50'si
+    const teacherPayment = salesAmount * 0.50
+    
+    // 2. Sosyal Medya: (Toplam satış - Öğretmene giden) değerinin %40'ı
+    const remainingAfterTeacher = salesAmount - teacherPayment
+    const socialMedia = remainingAfterTeacher * 0.40
+    
+    // 3. Şirkete Kar: Toplam Satış - Öğretmene Giden - Sosyal Medya
+    const companyProfit = salesAmount - teacherPayment - socialMedia
+    
+    // 4. Vergi: Şirkete Karın %20'si
+    const tax = companyProfit * 0.20
+    
+    // 5. Net Kar: Şirkete Kar - Vergi
+    const netProfit = companyProfit - tax
     
     return {
+      teacherPayment,
       socialMedia,
       companyProfit,
       tax,
@@ -327,7 +339,22 @@ function FinancialDashboard({ users }) {
 
           return (
             <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-6">
+                {/* Öğretmene Giden */}
+                <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl p-6 border border-indigo-200">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="bg-indigo-500 p-3 rounded-lg">
+                      <UserCircle className="w-6 h-6 text-white" />
+                    </div>
+                    <span className="text-sm font-semibold text-indigo-700 bg-indigo-200 px-3 py-1 rounded-full">
+                      {formatPercentage(expenses.teacherPayment, expenses.total)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-600 mb-1">Öğretmene Giden</p>
+                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(expenses.teacherPayment)}</p>
+                  <p className="text-xs text-gray-500 mt-2">Toplam satışın %50'si</p>
+                </div>
+
                 {/* Sosyal Medya */}
                 <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-6 border border-pink-200">
                   <div className="flex items-center justify-between mb-4">
@@ -340,7 +367,7 @@ function FinancialDashboard({ users }) {
                   </div>
                   <p className="text-sm text-gray-600 mb-1">Sosyal Medya</p>
                   <p className="text-2xl font-bold text-gray-900">{formatCurrency(expenses.socialMedia)}</p>
-                  <p className="text-xs text-gray-500 mt-2">Toplam satışın %40'ı</p>
+                  <p className="text-xs text-gray-500 mt-2">Kalanın %40'ı</p>
                 </div>
 
                 {/* Şirkete Kar */}
@@ -355,7 +382,7 @@ function FinancialDashboard({ users }) {
                   </div>
                   <p className="text-sm text-gray-600 mb-1">Şirkete Kar</p>
                   <p className="text-2xl font-bold text-gray-900">{formatCurrency(expenses.companyProfit)}</p>
-                  <p className="text-xs text-gray-500 mt-2">Toplam satışın %60'ı</p>
+                  <p className="text-xs text-gray-500 mt-2">Toplam - Öğretmen - Sosyal Medya</p>
                 </div>
 
                 {/* Vergi */}
@@ -459,20 +486,25 @@ function FinancialDashboard({ users }) {
                         <td className="px-4 py-3 text-sm font-semibold text-right text-gray-900">{formatCurrency(expenses.total)}</td>
                         <td className="px-4 py-3 text-sm text-right text-gray-500">100%</td>
                       </tr>
+                      <tr className="bg-indigo-50">
+                        <td className="px-4 py-3 text-sm text-gray-900">- Öğretmene Giden</td>
+                        <td className="px-4 py-3 text-sm font-semibold text-right text-indigo-700">{formatCurrency(expenses.teacherPayment)}</td>
+                        <td className="px-4 py-3 text-sm text-right text-indigo-700">50%</td>
+                      </tr>
                       <tr className="bg-pink-50">
                         <td className="px-4 py-3 text-sm text-gray-900">- Sosyal Medya Gideri</td>
                         <td className="px-4 py-3 text-sm font-semibold text-right text-pink-700">{formatCurrency(expenses.socialMedia)}</td>
-                        <td className="px-4 py-3 text-sm text-right text-pink-700">40%</td>
+                        <td className="px-4 py-3 text-sm text-right text-pink-700">{formatPercentage(expenses.socialMedia, expenses.total)}</td>
                       </tr>
                       <tr className="bg-blue-50">
                         <td className="px-4 py-3 text-sm text-gray-900">= Şirkete Kar</td>
                         <td className="px-4 py-3 text-sm font-semibold text-right text-blue-700">{formatCurrency(expenses.companyProfit)}</td>
-                        <td className="px-4 py-3 text-sm text-right text-blue-700">60%</td>
+                        <td className="px-4 py-3 text-sm text-right text-blue-700">{formatPercentage(expenses.companyProfit, expenses.total)}</td>
                       </tr>
                       <tr className="bg-red-50">
                         <td className="px-4 py-3 text-sm text-gray-900">- Vergi (Karın %20'si)</td>
                         <td className="px-4 py-3 text-sm font-semibold text-right text-red-700">{formatCurrency(expenses.tax)}</td>
-                        <td className="px-4 py-3 text-sm text-right text-red-700">12%</td>
+                        <td className="px-4 py-3 text-sm text-right text-red-700">{formatPercentage(expenses.tax, expenses.total)}</td>
                       </tr>
                       <tr className="bg-green-50 font-semibold">
                         <td className="px-4 py-3 text-sm text-gray-900">= Net Kar</td>
