@@ -1,12 +1,12 @@
-import { Trash2, User, Mail, Phone, CreditCard, Award, Tag } from 'lucide-react'
+import { Trash2, User, Mail, Phone, Award, Tag, BookOpen, DollarSign } from 'lucide-react'
 
 function UserList({ users, onDelete }) {
   if (users.length === 0) {
     return (
       <div className="bg-white rounded-xl shadow-lg p-12 text-center">
         <User className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-700 mb-2">Henüz kullanıcı yok</h3>
-        <p className="text-gray-500">Yeni kullanıcı eklemek için "Kullanıcı Ekle" sekmesine gidin.</p>
+        <h3 className="text-xl font-semibold text-gray-700 mb-2">Henüz müşteri yok</h3>
+        <p className="text-gray-500">Yeni müşteri eklemek için "Müşteri Ekle" sekmesine gidin.</p>
       </div>
     )
   }
@@ -14,8 +14,8 @@ function UserList({ users, onDelete }) {
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-        <h2 className="text-2xl font-bold text-gray-900">Kullanıcı Listesi</h2>
-        <p className="text-sm text-gray-600 mt-1">Toplam {users.length} kullanıcı</p>
+        <h2 className="text-2xl font-bold text-gray-900">Müşteri Listesi</h2>
+        <p className="text-sm text-gray-600 mt-1">Toplam {users.length} müşteri</p>
       </div>
 
       <div className="overflow-x-auto">
@@ -23,13 +23,16 @@ function UserList({ users, onDelete }) {
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Kullanıcı
+                Müşteri
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 İletişim
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                TC Kimlik No
+                Kamp
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Ödenen Tutar
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Sınav Derecesi
@@ -72,11 +75,25 @@ function UserList({ users, onDelete }) {
                     </div>
                   </div>
                 </td>
+                <td className="px-6 py-4">
+                  {user.camp ? (
+                    <div className="flex items-center text-sm text-gray-900">
+                      <BookOpen className="w-4 h-4 text-blue-500 mr-2" />
+                      <span className="font-medium">{user.camp}</span>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-400">-</span>
+                  )}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center text-sm text-gray-900">
-                    <CreditCard className="w-4 h-4 text-gray-400 mr-2" />
-                    {user.tc}
-                  </div>
+                  {user.amount ? (
+                    <div className="flex items-center text-sm text-gray-900">
+                      <DollarSign className="w-4 h-4 text-green-500 mr-2" />
+                      <span className="font-semibold">{parseFloat(user.amount).toLocaleString('tr-TR', { style: 'currency', currency: 'TRY' })}</span>
+                    </div>
+                  ) : (
+                    <span className="text-sm text-gray-400">-</span>
+                  )}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   {user.examScore ? (
@@ -104,6 +121,7 @@ function UserList({ users, onDelete }) {
                   <button
                     onClick={() => onDelete(user.id)}
                     className="inline-flex items-center space-x-1 text-red-600 hover:text-red-900 transition-colors"
+                    title="Müşteriyi Sil"
                   >
                     <Trash2 className="w-4 h-4" />
                     <span>Sil</span>

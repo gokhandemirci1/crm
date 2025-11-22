@@ -3,7 +3,8 @@ import Dashboard from './components/Dashboard'
 import Login from './components/Login'
 import UserForm from './components/UserForm'
 import UserList from './components/UserList'
-import { Users, UserPlus } from 'lucide-react'
+import FinancialDashboard from './components/FinancialDashboard'
+import { Users, UserPlus, DollarSign } from 'lucide-react'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -18,7 +19,7 @@ function App() {
     }
   }, [])
 
-  // localStorage'dan kullanıcıları yükle
+  // localStorage'dan müşterileri yükle
   useEffect(() => {
     const savedUsers = localStorage.getItem('adminUsers')
     if (savedUsers) {
@@ -26,7 +27,7 @@ function App() {
     }
   }, [])
 
-  // Kullanıcıları localStorage'a kaydet
+  // Müşterileri localStorage'a kaydet
   useEffect(() => {
     localStorage.setItem('adminUsers', JSON.stringify(users))
   }, [users])
@@ -41,7 +42,7 @@ function App() {
   }
 
   const deleteUser = (userId) => {
-    if (window.confirm('Bu kullanıcıyı silmek istediğinizden emin misiniz?')) {
+    if (window.confirm('Bu müşteriyi silmek istediğinizden emin misiniz?')) {
       setUsers(users.filter(user => user.id !== userId))
     }
   }
@@ -77,7 +78,7 @@ function App() {
               }`}
             >
               <Users className="w-5 h-5" />
-              <span>Kullanıcı Listesi</span>
+              <span>Müşteri Listesi</span>
             </button>
             <button
               onClick={() => setActiveTab('add')}
@@ -88,15 +89,28 @@ function App() {
               }`}
             >
               <UserPlus className="w-5 h-5" />
-              <span>Kullanıcı Ekle</span>
+              <span>Müşteri Ekle</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('financial')}
+              className={`flex items-center space-x-2 px-6 py-3 font-medium transition-colors ${
+                activeTab === 'financial'
+                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              <DollarSign className="w-5 h-5" />
+              <span>Finansal Dashboard</span>
             </button>
           </div>
         </div>
 
         {activeTab === 'list' ? (
           <UserList users={users} onDelete={deleteUser} />
-        ) : (
+        ) : activeTab === 'add' ? (
           <UserForm onAdd={addUser} />
+        ) : (
+          <FinancialDashboard users={users} />
         )}
       </Dashboard>
     </div>

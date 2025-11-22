@@ -6,10 +6,11 @@ function UserForm({ onAdd }) {
     firstName: '',
     lastName: '',
     phone: '',
-    tc: '',
     email: '',
     examScore: '',
-    promoCode: ''
+    promoCode: '',
+    camp: '',
+    amount: ''
   })
 
   const [errors, setErrors] = useState({})
@@ -43,11 +44,6 @@ function UserForm({ onAdd }) {
     } else if (!/^[0-9+\-\s()]+$/.test(formData.phone)) {
       newErrors.phone = 'Geçerli bir telefon numarası giriniz'
     }
-    if (!formData.tc.trim()) {
-      newErrors.tc = 'TC Kimlik No gereklidir'
-    } else if (!/^[0-9]{11}$/.test(formData.tc)) {
-      newErrors.tc = 'TC Kimlik No 11 haneli olmalıdır'
-    }
     if (!formData.email.trim()) {
       newErrors.email = 'E-posta gereklidir'
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -55,6 +51,14 @@ function UserForm({ onAdd }) {
     }
     if (formData.examScore && isNaN(formData.examScore)) {
       newErrors.examScore = 'Sınav derecesi sayı olmalıdır'
+    }
+    if (!formData.camp.trim()) {
+      newErrors.camp = 'Kamp bilgisi gereklidir'
+    }
+    if (!formData.amount.trim()) {
+      newErrors.amount = 'Ödenen tutar gereklidir'
+    } else if (isNaN(formData.amount) || parseFloat(formData.amount) <= 0) {
+      newErrors.amount = 'Geçerli bir tutar giriniz'
     }
 
     setErrors(newErrors)
@@ -70,12 +74,13 @@ function UserForm({ onAdd }) {
         firstName: '',
         lastName: '',
         phone: '',
-        tc: '',
         email: '',
         examScore: '',
-        promoCode: ''
+        promoCode: '',
+        camp: '',
+        amount: ''
       })
-      alert('Kullanıcı başarıyla eklendi!')
+      alert('Müşteri başarıyla eklendi!')
     }
   }
 
@@ -84,17 +89,18 @@ function UserForm({ onAdd }) {
       firstName: '',
       lastName: '',
       phone: '',
-      tc: '',
       email: '',
       examScore: '',
-      promoCode: ''
+      promoCode: '',
+      camp: '',
+      amount: ''
     })
     setErrors({})
   }
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Yeni Kullanıcı Ekle</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">Yeni Müşteri Ekle</h2>
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -112,7 +118,7 @@ function UserForm({ onAdd }) {
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                 errors.firstName ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Kullanıcının adı"
+              placeholder="Müşterinin adı"
             />
             {errors.firstName && (
               <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
@@ -133,7 +139,7 @@ function UserForm({ onAdd }) {
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                 errors.lastName ? 'border-red-500' : 'border-gray-300'
               }`}
-              placeholder="Kullanıcının soyadı"
+              placeholder="Müşterinin soyadı"
             />
             {errors.lastName && (
               <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
@@ -158,28 +164,6 @@ function UserForm({ onAdd }) {
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
-            )}
-          </div>
-
-          {/* TC Kimlik No */}
-          <div>
-            <label htmlFor="tc" className="block text-sm font-medium text-gray-700 mb-2">
-              TC Kimlik No <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              id="tc"
-              name="tc"
-              value={formData.tc}
-              onChange={handleChange}
-              maxLength="11"
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.tc ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="12345678901"
-            />
-            {errors.tc && (
-              <p className="mt-1 text-sm text-red-600">{errors.tc}</p>
             )}
           </div>
 
@@ -240,6 +224,50 @@ function UserForm({ onAdd }) {
               placeholder="PROMO2024"
             />
           </div>
+
+          {/* Kamp */}
+          <div>
+            <label htmlFor="camp" className="block text-sm font-medium text-gray-700 mb-2">
+              Aldığı Kamp <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              id="camp"
+              name="camp"
+              value={formData.camp}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.camp ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="Örn: YKS Hazırlık Kampı"
+            />
+            {errors.camp && (
+              <p className="mt-1 text-sm text-red-600">{errors.camp}</p>
+            )}
+          </div>
+
+          {/* Ödenen Tutar */}
+          <div>
+            <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-2">
+              Ödenen Tutar (₺) <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              id="amount"
+              name="amount"
+              value={formData.amount}
+              onChange={handleChange}
+              step="0.01"
+              min="0"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.amount ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="0.00"
+            />
+            {errors.amount && (
+              <p className="mt-1 text-sm text-red-600">{errors.amount}</p>
+            )}
+          </div>
         </div>
 
         {/* Butonlar */}
@@ -257,7 +285,7 @@ function UserForm({ onAdd }) {
             className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
             <Save className="w-4 h-4" />
-            <span>Kullanıcı Ekle</span>
+            <span>Müşteri Ekle</span>
           </button>
         </div>
       </form>

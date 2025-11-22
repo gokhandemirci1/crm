@@ -13,7 +13,7 @@ function Dashboard({ children, onLogout }) {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-900">Admin Dashboard</h1>
-                <p className="text-xs text-gray-500">Kullanıcı Yönetim Sistemi</p>
+                <p className="text-xs text-gray-500">Müşteri Yönetim Sistemi</p>
               </div>
             </div>
             <button
