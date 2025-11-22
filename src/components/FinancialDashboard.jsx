@@ -107,9 +107,9 @@ function FinancialDashboard({ users }) {
     // 1. Öğretmene Giden: Toplam satışın %50'si
     const teacherPayment = salesAmount * 0.50
     
-    // 2. Sosyal Medya: (Toplam satış - Öğretmene giden) değerinin %40'ı
+    // 2. Sosyal Medya: (Toplam satış - Öğretmene giden) değerinin %30'u
     const remainingAfterTeacher = salesAmount - teacherPayment
-    const socialMedia = remainingAfterTeacher * 0.40
+    const socialMedia = remainingAfterTeacher * 0.30
     
     // 3. Şirkete Kar: Toplam Satış - Öğretmene Giden - Sosyal Medya
     const companyProfit = salesAmount - teacherPayment - socialMedia
@@ -367,7 +367,7 @@ function FinancialDashboard({ users }) {
                   </div>
                   <p className="text-sm text-gray-600 mb-1">Sosyal Medya</p>
                   <p className="text-2xl font-bold text-gray-900">{formatCurrency(expenses.socialMedia)}</p>
-                  <p className="text-xs text-gray-500 mt-2">Kalanın %40'ı</p>
+                  <p className="text-xs text-gray-500 mt-2">Kalanın %30'u</p>
                 </div>
 
                 {/* Şirkete Kar */}
