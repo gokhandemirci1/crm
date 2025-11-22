@@ -6,6 +6,7 @@ function FinancialDashboard({ users }) {
   // Tarih fonksiyonları
   const today = new Date()
   const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 0, 0, 0, 0)
+  const startOfLast24Hours = new Date(today.getTime() - 24 * 60 * 60 * 1000)
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1)
   const startOfThreeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 2, 1)
 
@@ -30,6 +31,9 @@ function FinancialDashboard({ users }) {
   }
 
   // İstatistikler
+  const hourlySales = calculateSales(startOfLast24Hours)
+  const hourlyCount = getSalesCount(startOfLast24Hours)
+
   const dailySales = calculateSales(startOfToday)
   const dailyCount = getSalesCount(startOfToday)
 
@@ -46,6 +50,57 @@ function FinancialDashboard({ users }) {
   }, 0)
 
   const totalCustomers = users.length
+
+  // Saatlik verileri hesapla (son 24 saat)
+  const getHourlyData = () => {
+    const hourlyData = {}
+    
+    // Son 24 saat içindeki satışları saatlere göre grupla
+    users
+      .filter(user => {
+        const userDate = new Date(user.createdAt)
+        return userDate >= startOfLast24Hours
+      })
+      .forEach(user => {
+        const userDate = new Date(user.createdAt)
+        const hour = userDate.getHours()
+        const hourKey = `${hour}:00`
+        
+        if (!hourlyData[hourKey]) {
+          hourlyData[hourKey] = {
+            hour: hourKey,
+            count: 0,
+            amount: 0
+          }
+        }
+        
+        hourlyData[hourKey].count++
+        hourlyData[hourKey].amount += parseFloat(user.amount) || 0
+      })
+    
+    // 24 saatlik array oluştur (boş saatler için de)
+    const hours = []
+    for (let i = 0; i < 24; i++) {
+      const hourKey = `${i}:00`
+      if (hourlyData[hourKey]) {
+        hours.push(hourlyData[hourKey])
+      } else {
+        hours.push({
+          hour: hourKey,
+          count: 0,
+          amount: 0
+        })
+      }
+    }
+    
+    return hours.sort((a, b) => {
+      const hourA = parseInt(a.hour.split(':')[0])
+      const hourB = parseInt(b.hour.split(':')[0])
+      return hourA - hourB
+    })
+  }
+
+  const hourlyData = getHourlyData()
 
   // Gider Kalemleri Hesaplama Fonksiyonu
   const calculateExpenses = (salesAmount) => {
@@ -65,6 +120,9 @@ function FinancialDashboard({ users }) {
 
   // Toplam (Tüm Zamanlar)
   const totalExpenses = calculateExpenses(totalSales)
+
+  // Saatlik (Son 24 saat)
+  const hourlyExpenses = calculateExpenses(hourlySales)
 
   // Günlük
   const dailyExpenses = calculateExpenses(dailySales)
@@ -131,7 +189,7 @@ function FinancialDashboard({ users }) {
   return (
     <div className="space-y-6">
       {/* Özet Kartlar */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
           <div className="flex items-center justify-between">
             <div>
@@ -141,6 +199,19 @@ function FinancialDashboard({ users }) {
             </div>
             <div className="bg-blue-100 p-3 rounded-lg">
               <DollarSign className="w-6 h-6 text-blue-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-lg p-6 border-l-4 border-cyan-500">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-gray-600 mb-1">Saatlik Satış</p>
+              <p className="text-2xl font-bold text-gray-900">{formatCurrency(hourlySales)}</p>
+              <p className="text-xs text-gray-500 mt-1">{hourlyCount} satış (24s)</p>
+            </div>
+            <div className="bg-cyan-100 p-3 rounded-lg">
+              <Calendar className="w-6 h-6 text-cyan-600" />
             </div>
           </div>
         </div>
@@ -193,10 +264,20 @@ function FinancialDashboard({ users }) {
         </h2>
 
         {/* Periyot Seçimi */}
-        <div className="mb-6 flex space-x-2 border-b border-gray-200">
+        <div className="mb-6 flex space-x-2 border-b border-gray-200 overflow-x-auto">
+          <button
+            onClick={() => setSelectedPeriod('hourly')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              selectedPeriod === 'hourly'
+                ? 'border-cyan-500 text-cyan-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            Saatlik (24 Saat)
+          </button>
           <button
             onClick={() => setSelectedPeriod('daily')}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               selectedPeriod === 'daily'
                 ? 'border-green-500 text-green-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -206,7 +287,7 @@ function FinancialDashboard({ users }) {
           </button>
           <button
             onClick={() => setSelectedPeriod('monthly')}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               selectedPeriod === 'monthly'
                 ? 'border-purple-500 text-purple-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -216,7 +297,7 @@ function FinancialDashboard({ users }) {
           </button>
           <button
             onClick={() => setSelectedPeriod('threeMonthly')}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               selectedPeriod === 'threeMonthly'
                 ? 'border-orange-500 text-orange-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -226,7 +307,7 @@ function FinancialDashboard({ users }) {
           </button>
           <button
             onClick={() => setSelectedPeriod('total')}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
               selectedPeriod === 'total'
                 ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -238,7 +319,8 @@ function FinancialDashboard({ users }) {
 
         {/* Seçili Periyoda Göre Hesaplamalar */}
         {(() => {
-          const expenses = selectedPeriod === 'daily' ? dailyExpenses
+          const expenses = selectedPeriod === 'hourly' ? hourlyExpenses
+            : selectedPeriod === 'daily' ? dailyExpenses
             : selectedPeriod === 'monthly' ? monthlyExpenses
             : selectedPeriod === 'threeMonthly' ? threeMonthlyExpenses
             : totalExpenses
@@ -308,9 +390,52 @@ function FinancialDashboard({ users }) {
               </div>
 
               {/* Detaylı Hesaplama Tablosu */}
+              {/* Saatlik Grafik (Sadece saatlik seçildiğinde) */}
+              {selectedPeriod === 'hourly' && (
+                <div className="mt-6 border-t border-gray-200 pt-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Saatlik Satış Dağılımı (Son 24 Saat)</h3>
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="space-y-2">
+                      {hourlyData.map((data, index) => (
+                        <div key={index} className="flex items-center space-x-4">
+                          <div className="w-16 text-sm font-medium text-gray-700">{data.hour}</div>
+                          <div className="flex-1 bg-gray-200 rounded-full h-8 relative overflow-hidden">
+                            {data.amount > 0 && (
+                              <div
+                                className="bg-cyan-500 h-full rounded-full flex items-center justify-end pr-2 transition-all"
+                                style={{ width: `${(data.amount / hourlySales) * 100}%` }}
+                              >
+                                {data.amount > 0 && (
+                                  <span className="text-xs font-semibold text-white">
+                                    {formatCurrency(data.amount)}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <div className="w-24 text-sm text-gray-600 text-right">
+                            {data.count} satış
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-gray-300">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-gray-700">Toplam (24 Saat)</span>
+                        <div className="text-right">
+                          <span className="text-lg font-bold text-gray-900">{formatCurrency(hourlySales)}</span>
+                          <span className="text-sm text-gray-500 ml-2">({hourlyCount} satış)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="mt-6 border-t border-gray-200 pt-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  {selectedPeriod === 'daily' ? 'Günlük' : 
+                  {selectedPeriod === 'hourly' ? 'Saatlik (24 Saat)' :
+                   selectedPeriod === 'daily' ? 'Günlük' : 
                    selectedPeriod === 'monthly' ? 'Aylık' : 
                    selectedPeriod === 'threeMonthly' ? '3 Aylık' : 'Toplam'} Hesaplama Detayları
                 </h3>
@@ -326,7 +451,8 @@ function FinancialDashboard({ users }) {
                     <tbody className="bg-white divide-y divide-gray-200">
                       <tr>
                         <td className="px-4 py-3 text-sm text-gray-900">
-                          {selectedPeriod === 'daily' ? 'Günlük' : 
+                          {selectedPeriod === 'hourly' ? 'Saatlik (24 Saat)' :
+                           selectedPeriod === 'daily' ? 'Günlük' : 
                            selectedPeriod === 'monthly' ? 'Aylık' : 
                            selectedPeriod === 'threeMonthly' ? '3 Aylık' : 'Toplam'} Satış
                         </td>
