@@ -1,4 +1,4 @@
-import { DollarSign, TrendingUp, Calendar, BarChart3 } from 'lucide-react'
+import { DollarSign, TrendingUp, Calendar, BarChart3, Share2, Building2, Receipt, Wallet } from 'lucide-react'
 
 function FinancialDashboard({ users }) {
   // Tarih fonksiyonları
@@ -45,12 +45,28 @@ function FinancialDashboard({ users }) {
 
   const totalCustomers = users.length
 
+  // Gider Kalemleri Hesaplamaları
+  // Toplam satışın %40'ı = Sosyal Medya
+  // Toplam satışın %60'ı = Şirkete Kar
+  // Karın %20'si = Vergi
+  // Kalan = Net Kar
+  const socialMediaExpense = totalSales * 0.40  // %40
+  const companyProfit = totalSales * 0.60        // %60
+  const tax = companyProfit * 0.20              // Karın %20'si
+  const netProfit = companyProfit - tax         // Kalan kar
+
   // Format fonksiyonu
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('tr-TR', {
       style: 'currency',
       currency: 'TRY'
     }).format(amount)
+  }
+
+  // Yüzde formatı
+  const formatPercentage = (value, total) => {
+    if (total === 0) return '0%'
+    return `${((value / total) * 100).toFixed(1)}%`
   }
 
   // Günlük detaylar
@@ -145,6 +161,119 @@ function FinancialDashboard({ users }) {
             <div className="bg-orange-100 p-3 rounded-lg">
               <BarChart3 className="w-6 h-6 text-orange-600" />
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Gider Kalemleri ve Kar Dağılımı */}
+      <div className="bg-white rounded-xl shadow-lg p-6">
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+          <BarChart3 className="w-6 h-6 text-blue-600 mr-2" />
+          Gider Kalemleri ve Kar Dağılımı
+        </h2>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+          {/* Sosyal Medya */}
+          <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-6 border border-pink-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-pink-500 p-3 rounded-lg">
+                <Share2 className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-sm font-semibold text-pink-700 bg-pink-200 px-3 py-1 rounded-full">
+                {formatPercentage(socialMediaExpense, totalSales)}
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Sosyal Medya</p>
+            <p className="text-2xl font-bold text-gray-900">{formatCurrency(socialMediaExpense)}</p>
+            <p className="text-xs text-gray-500 mt-2">Toplam satışın %40'ı</p>
+          </div>
+
+          {/* Şirkete Kar */}
+          <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6 border border-blue-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-blue-500 p-3 rounded-lg">
+                <Building2 className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-sm font-semibold text-blue-700 bg-blue-200 px-3 py-1 rounded-full">
+                {formatPercentage(companyProfit, totalSales)}
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Şirkete Kar</p>
+            <p className="text-2xl font-bold text-gray-900">{formatCurrency(companyProfit)}</p>
+            <p className="text-xs text-gray-500 mt-2">Toplam satışın %60'ı</p>
+          </div>
+
+          {/* Vergi */}
+          <div className="bg-gradient-to-br from-red-50 to-red-100 rounded-xl p-6 border border-red-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-red-500 p-3 rounded-lg">
+                <Receipt className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-sm font-semibold text-red-700 bg-red-200 px-3 py-1 rounded-full">
+                {formatPercentage(tax, companyProfit)}
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Vergi</p>
+            <p className="text-2xl font-bold text-gray-900">{formatCurrency(tax)}</p>
+            <p className="text-xs text-gray-500 mt-2">Karın %20'si</p>
+          </div>
+
+          {/* Net Kar */}
+          <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-6 border border-green-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="bg-green-500 p-3 rounded-lg">
+                <Wallet className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-sm font-semibold text-green-700 bg-green-200 px-3 py-1 rounded-full">
+                {formatPercentage(netProfit, totalSales)}
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">Net Kar</p>
+            <p className="text-2xl font-bold text-gray-900">{formatCurrency(netProfit)}</p>
+            <p className="text-xs text-gray-500 mt-2">Kalan kar</p>
+          </div>
+        </div>
+
+        {/* Detaylı Hesaplama Tablosu */}
+        <div className="mt-6 border-t border-gray-200 pt-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Hesaplama Detayları</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kalem</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Tutar</th>
+                  <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase">Oran</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td className="px-4 py-3 text-sm text-gray-900">Toplam Satış</td>
+                  <td className="px-4 py-3 text-sm font-semibold text-right text-gray-900">{formatCurrency(totalSales)}</td>
+                  <td className="px-4 py-3 text-sm text-right text-gray-500">100%</td>
+                </tr>
+                <tr className="bg-pink-50">
+                  <td className="px-4 py-3 text-sm text-gray-900">- Sosyal Medya Gideri</td>
+                  <td className="px-4 py-3 text-sm font-semibold text-right text-pink-700">{formatCurrency(socialMediaExpense)}</td>
+                  <td className="px-4 py-3 text-sm text-right text-pink-700">40%</td>
+                </tr>
+                <tr className="bg-blue-50">
+                  <td className="px-4 py-3 text-sm text-gray-900">= Şirkete Kar</td>
+                  <td className="px-4 py-3 text-sm font-semibold text-right text-blue-700">{formatCurrency(companyProfit)}</td>
+                  <td className="px-4 py-3 text-sm text-right text-blue-700">60%</td>
+                </tr>
+                <tr className="bg-red-50">
+                  <td className="px-4 py-3 text-sm text-gray-900">- Vergi (Karın %20'si)</td>
+                  <td className="px-4 py-3 text-sm font-semibold text-right text-red-700">{formatCurrency(tax)}</td>
+                  <td className="px-4 py-3 text-sm text-right text-red-700">12%</td>
+                </tr>
+                <tr className="bg-green-50 font-semibold">
+                  <td className="px-4 py-3 text-sm text-gray-900">= Net Kar</td>
+                  <td className="px-4 py-3 text-sm font-bold text-right text-green-700">{formatCurrency(netProfit)}</td>
+                  <td className="px-4 py-3 text-sm text-right text-green-700">{formatPercentage(netProfit, totalSales)}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
