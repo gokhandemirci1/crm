@@ -5,11 +5,13 @@ import UserForm from './components/UserForm'
 import UserList from './components/UserList'
 import FinancialDashboard from './components/FinancialDashboard'
 import { Users, UserPlus, DollarSign } from 'lucide-react'
+import { getCustomers, addCustomer, deleteCustomer, subscribeToCustomers } from './services/supabase'
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [users, setUsers] = useState([])
   const [activeTab, setActiveTab] = useState('list')
+  const [isLoading, setIsLoading] = useState(true)
 
   // Sayfa yüklendiğinde authentication durumunu kontrol et
   useEffect(() => {
@@ -19,31 +21,81 @@ function App() {
     }
   }, [])
 
-  // localStorage'dan müşterileri yükle
+  // Müşterileri yükle
   useEffect(() => {
-    const savedUsers = localStorage.getItem('adminUsers')
-    if (savedUsers) {
-      setUsers(JSON.parse(savedUsers))
+    if (isAuthenticated) {
+      loadCustomers()
+      
+      // Real-time updates için subscription (Supabase kullanılıyorsa)
+      const unsubscribe = subscribeToCustomers((payload) => {
+        if (payload.eventType === 'INSERT' || payload.eventType === 'UPDATE' || payload.eventType === 'DELETE') {
+          loadCustomers()
+        }
+      })
+      
+      return () => {
+        if (unsubscribe) unsubscribe()
+      }
     }
-  }, [])
+  }, [isAuthenticated])
 
-  // Müşterileri localStorage'a kaydet
-  useEffect(() => {
-    localStorage.setItem('adminUsers', JSON.stringify(users))
-  }, [users])
-
-  const addUser = (userData) => {
-    const newUser = {
-      id: Date.now().toString(),
-      ...userData,
-      createdAt: new Date().toISOString()
+  const loadCustomers = async () => {
+    setIsLoading(true)
+    try {
+      const data = await getCustomers()
+      // Supabase'den gelen veriyi uygulama formatına çevir
+      const formattedData = data.map(item => ({
+        id: item.id?.toString() || item.id,
+        firstName: item.first_name || item.firstName,
+        lastName: item.last_name || item.lastName,
+        phone: item.phone,
+        email: item.email,
+        examScore: item.exam_score || item.examScore || '',
+        promoCode: item.promo_code || item.promoCode || '',
+        camp: item.camp,
+        amount: item.amount?.toString() || item.amount,
+        createdAt: item.created_at || item.createdAt
+      }))
+      setUsers(formattedData)
+    } catch (error) {
+      console.error('Error loading customers:', error)
+    } finally {
+      setIsLoading(false)
     }
-    setUsers([...users, newUser])
   }
 
-  const deleteUser = (userId) => {
+  const addUser = async (userData) => {
+    try {
+      const newUser = await addCustomer(userData)
+      // Supabase formatını uygulama formatına çevir
+      const formattedUser = {
+        id: newUser.id?.toString() || newUser.id,
+        firstName: newUser.first_name || newUser.firstName,
+        lastName: newUser.last_name || newUser.lastName,
+        phone: newUser.phone,
+        email: newUser.email,
+        examScore: newUser.exam_score || newUser.examScore || '',
+        promoCode: newUser.promo_code || newUser.promoCode || '',
+        camp: newUser.camp,
+        amount: newUser.amount?.toString() || newUser.amount,
+        createdAt: newUser.created_at || newUser.createdAt
+      }
+      setUsers([formattedUser, ...users])
+    } catch (error) {
+      console.error('Error adding customer:', error)
+      alert('Müşteri eklenirken bir hata oluştu. Lütfen tekrar deneyin.')
+    }
+  }
+
+  const deleteUser = async (userId) => {
     if (window.confirm('Bu müşteriyi silmek istediğinizden emin misiniz?')) {
-      setUsers(users.filter(user => user.id !== userId))
+      try {
+        await deleteCustomer(userId)
+        setUsers(users.filter(user => user.id !== userId))
+      } catch (error) {
+        console.error('Error deleting customer:', error)
+        alert('Müşteri silinirken bir hata oluştu. Lütfen tekrar deneyin.')
+      }
     }
   }
 
@@ -105,7 +157,12 @@ function App() {
           </div>
         </div>
 
-        {activeTab === 'list' ? (
+        {isLoading ? (
+          <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+            <div className="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p className="text-gray-600">Yükleniyor...</p>
+          </div>
+        ) : activeTab === 'list' ? (
           <UserList users={users} onDelete={deleteUser} />
         ) : activeTab === 'add' ? (
           <UserForm onAdd={addUser} />

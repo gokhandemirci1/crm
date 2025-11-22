@@ -5,24 +5,27 @@ Modern bir kullanıcı yönetim admin dashboard'u.
 ## Özellikler
 
 - ✅ Güvenli giriş sistemi
-- ✅ Kullanıcı ekleme
-- ✅ Kullanıcı silme
-- ✅ Kullanıcı listesi görüntüleme
+- ✅ Müşteri ekleme
+- ✅ Müşteri silme
+- ✅ Müşteri listesi görüntüleme
+- ✅ Finansal Dashboard (günlük, aylık, 3 aylık satış)
 - ✅ Modern ve responsive tasarım
-- ✅ LocalStorage ile veri saklama
+- ✅ Supabase entegrasyonu (çoklu cihaz desteği)
+- ✅ LocalStorage fallback (Supabase olmadan da çalışır)
 
 ## Giriş Bilgileri
 
 - **E-posta:** admin@kampus.com
 - **Şifre:** Kampus345
 
-## Kullanıcı Alanları
+## Müşteri Alanları
 
 - İsim (zorunlu)
 - Soyisim (zorunlu)
 - Telefon (zorunlu)
-- TC Kimlik No (zorunlu, 11 haneli)
 - E-posta (zorunlu)
+- Aldığı Kamp (zorunlu)
+- Ödenen Tutar (zorunlu)
 - Önceki Sınav Derecesi (opsiyonel)
 - Promosyon Kodu (opsiyonel)
 
@@ -50,13 +53,25 @@ npm run build
 2. Vercel dashboard'da Environment Variables ekleyin (gerekirse):
    - `VITE_DATABASE_URL` (opsiyonel, gelecekte database entegrasyonu için)
 
-## Database URL
+## Çoklu Cihaz Desteği (Supabase)
 
-Database entegrasyonu için `.env` dosyası oluşturun veya Vercel'de environment variable olarak ekleyin:
+Farklı cihazlardan müşteri eklediğinizde görebilmek için Supabase entegrasyonu yapılmıştır.
 
-```
-VITE_DATABASE_URL=your_database_url_here
-```
+### Hızlı Kurulum
 
-Şu an uygulama localStorage kullanmaktadır. Database entegrasyonu için Supabase, Firebase veya başka bir servis kullanabilirsiniz.
+1. [Supabase](https://supabase.com) hesabı oluşturun
+2. Yeni proje oluşturun
+3. `SUPABASE_SETUP.md` dosyasındaki SQL'i çalıştırın
+4. `.env` dosyası oluşturun:
+   ```
+   VITE_SUPABASE_URL=https://xxxxx.supabase.co
+   VITE_SUPABASE_ANON_KEY=your_anon_key_here
+   ```
+5. Vercel'de de aynı environment variables'ları ekleyin
+
+Detaylı kurulum için `SUPABASE_SETUP.md` dosyasına bakın.
+
+### Not
+
+Eğer Supabase kurulumu yapmazsanız, uygulama otomatik olarak localStorage kullanır. Ancak bu durumda veriler sadece o cihazda görünür.
 
