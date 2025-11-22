@@ -50,18 +50,24 @@ export const addCustomer = async (customerData) => {
         created_at: new Date().toISOString()
       }
       
-      // Opsiyonel alanları ekle
-      if (customerData.age) {
-        insertData.age = parseInt(customerData.age) || null
-      }
-      if (customerData.grade) {
-        insertData.grade = customerData.grade || null
-      }
+      // Opsiyonel alanları ekle (sadece varsa)
       if (customerData.examScore) {
         insertData.exam_score = customerData.examScore || null
       }
       if (customerData.promoCode) {
         insertData.promo_code = customerData.promoCode || null
+      }
+      
+      // Age ve grade - eğer değer varsa ekle
+      // NOT: Eğer Supabase tablosunda bu kolonlar yoksa, önce ADD_COLUMNS.sql'i çalıştırın
+      if (customerData.age && customerData.age.toString().trim() !== '') {
+        const ageValue = parseInt(customerData.age)
+        if (!isNaN(ageValue)) {
+          insertData.age = ageValue
+        }
+      }
+      if (customerData.grade && customerData.grade.trim() !== '') {
+        insertData.grade = customerData.grade
       }
       
       const { data, error } = await supabase
