@@ -127,7 +127,6 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <Dashboard onLogout={handleLogout}>
-        <SupabaseStatus users={users} onMigrate={loadCustomers} />
         <div className="mb-6">
           <div className="flex space-x-4 border-b border-gray-200">
             <button
