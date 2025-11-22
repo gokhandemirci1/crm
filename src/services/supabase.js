@@ -40,24 +40,44 @@ export const getCustomers = async () => {
 export const addCustomer = async (customerData) => {
   if (useSupabase && supabase) {
     try {
+      const insertData = {
+        first_name: customerData.firstName,
+        last_name: customerData.lastName,
+        phone: customerData.phone,
+        email: customerData.email,
+        camp: customerData.camp,
+        amount: parseFloat(customerData.amount) || 0,
+        created_at: new Date().toISOString()
+      }
+      
+      // Opsiyonel alanları ekle
+      if (customerData.age) {
+        insertData.age = parseInt(customerData.age) || null
+      }
+      if (customerData.grade) {
+        insertData.grade = customerData.grade || null
+      }
+      if (customerData.examScore) {
+        insertData.exam_score = customerData.examScore || null
+      }
+      if (customerData.promoCode) {
+        insertData.promo_code = customerData.promoCode || null
+      }
+      
       const { data, error } = await supabase
         .from('customers')
-        .insert([{
-          first_name: customerData.firstName,
-          last_name: customerData.lastName,
-          phone: customerData.phone,
-          email: customerData.email,
-          age: parseInt(customerData.age) || null,
-          grade: customerData.grade || null,
-          exam_score: customerData.examScore || null,
-          promo_code: customerData.promoCode || null,
-          camp: customerData.camp,
-          amount: parseFloat(customerData.amount) || 0,
-          created_at: new Date().toISOString()
-        }])
+        .insert([insertData])
         .select()
       
-      if (error) throw error
+      if (error) {
+        console.error('Supabase error:', error)
+        throw new Error(error.message || 'Veritabanı hatası')
+      }
+      
+      if (!data || data.length === 0) {
+        throw new Error('Müşteri eklenemedi')
+      }
+      
       return data[0]
     } catch (error) {
       console.error('Error adding customer:', error)

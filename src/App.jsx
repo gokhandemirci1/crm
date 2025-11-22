@@ -86,9 +86,12 @@ function App() {
         createdAt: newUser.created_at || newUser.createdAt
       }
       setUsers([formattedUser, ...users])
+      return formattedUser // Başarılı olduğunu belirtmek için
     } catch (error) {
       console.error('Error adding customer:', error)
-      alert('Müşteri eklenirken bir hata oluştu. Lütfen tekrar deneyin.')
+      const errorMessage = error?.message || 'Müşteri eklenirken bir hata oluştu. Lütfen tekrar deneyin.'
+      alert(`Hata: ${errorMessage}`)
+      throw error // Hata fırlat ki UserForm'da yakalanabilsin
     }
   }
 

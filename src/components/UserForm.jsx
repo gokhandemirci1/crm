@@ -75,24 +75,30 @@ function UserForm({ onAdd }) {
     return Object.keys(newErrors).length === 0
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     if (validate()) {
-      onAdd(formData)
-      // Formu temizle
-      setFormData({
-        firstName: '',
-        lastName: '',
-        phone: '',
-        email: '',
-        age: '',
-        grade: '',
-        examScore: '',
-        promoCode: '',
-        camp: '',
-        amount: ''
-      })
-      alert('Müşteri başarıyla eklendi!')
+      try {
+        await onAdd(formData)
+        // Formu temizle
+        setFormData({
+          firstName: '',
+          lastName: '',
+          phone: '',
+          email: '',
+          age: '',
+          grade: '',
+          examScore: '',
+          promoCode: '',
+          camp: '',
+          amount: ''
+        })
+        setErrors({})
+        alert('Müşteri başarıyla eklendi!')
+      } catch (error) {
+        console.error('Error adding customer:', error)
+        // Hata mesajı zaten App.jsx'te gösteriliyor
+      }
     }
   }
 
