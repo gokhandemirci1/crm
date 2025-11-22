@@ -7,6 +7,8 @@ function UserForm({ onAdd }) {
     lastName: '',
     phone: '',
     email: '',
+    age: '',
+    grade: '',
     examScore: '',
     promoCode: '',
     camp: '',
@@ -49,6 +51,14 @@ function UserForm({ onAdd }) {
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Geçerli bir e-posta adresi giriniz'
     }
+    if (!formData.age.trim()) {
+      newErrors.age = 'Yaş gereklidir'
+    } else if (isNaN(formData.age) || parseInt(formData.age) < 1 || parseInt(formData.age) > 120) {
+      newErrors.age = 'Geçerli bir yaş giriniz (1-120)'
+    }
+    if (!formData.grade.trim()) {
+      newErrors.grade = 'Sınıf seçimi gereklidir'
+    }
     if (formData.examScore && isNaN(formData.examScore)) {
       newErrors.examScore = 'Sınav derecesi sayı olmalıdır'
     }
@@ -75,6 +85,8 @@ function UserForm({ onAdd }) {
         lastName: '',
         phone: '',
         email: '',
+        age: '',
+        grade: '',
         examScore: '',
         promoCode: '',
         camp: '',
@@ -90,6 +102,8 @@ function UserForm({ onAdd }) {
       lastName: '',
       phone: '',
       email: '',
+      age: '',
+      grade: '',
       examScore: '',
       promoCode: '',
       camp: '',
@@ -185,6 +199,55 @@ function UserForm({ onAdd }) {
             />
             {errors.email && (
               <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+            )}
+          </div>
+
+          {/* Yaş */}
+          <div>
+            <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-2">
+              Yaş <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              id="age"
+              name="age"
+              value={formData.age}
+              onChange={handleChange}
+              min="1"
+              max="120"
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.age ? 'border-red-500' : 'border-gray-300'
+              }`}
+              placeholder="Örn: 18"
+            />
+            {errors.age && (
+              <p className="mt-1 text-sm text-red-600">{errors.age}</p>
+            )}
+          </div>
+
+          {/* Sınıf */}
+          <div>
+            <label htmlFor="grade" className="block text-sm font-medium text-gray-700 mb-2">
+              Sınıf <span className="text-red-500">*</span>
+            </label>
+            <select
+              id="grade"
+              name="grade"
+              value={formData.grade}
+              onChange={handleChange}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                errors.grade ? 'border-red-500' : 'border-gray-300'
+              }`}
+            >
+              <option value="">Sınıf Seçiniz</option>
+              <option value="9">9. Sınıf</option>
+              <option value="10">10. Sınıf</option>
+              <option value="11">11. Sınıf</option>
+              <option value="12">12. Sınıf</option>
+              <option value="mezun">Mezun</option>
+            </select>
+            {errors.grade && (
+              <p className="mt-1 text-sm text-red-600">{errors.grade}</p>
             )}
           </div>
 

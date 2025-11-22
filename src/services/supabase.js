@@ -47,6 +47,8 @@ export const addCustomer = async (customerData) => {
           last_name: customerData.lastName,
           phone: customerData.phone,
           email: customerData.email,
+          age: parseInt(customerData.age) || null,
+          grade: customerData.grade || null,
           exam_score: customerData.examScore || null,
           promo_code: customerData.promoCode || null,
           camp: customerData.camp,

@@ -1,4 +1,4 @@
-import { Trash2, User, Mail, Phone, Award, Tag, BookOpen, DollarSign } from 'lucide-react'
+import { Trash2, User, Mail, Phone, Award, Tag, BookOpen, DollarSign, Calendar, GraduationCap } from 'lucide-react'
 
 function UserList({ users, onDelete }) {
   if (users.length === 0) {
@@ -27,6 +27,9 @@ function UserList({ users, onDelete }) {
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 İletişim
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Yaş / Sınıf
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Kamp
@@ -73,6 +76,27 @@ function UserList({ users, onDelete }) {
                       <Phone className="w-4 h-4 text-gray-400 mr-2" />
                       {user.phone}
                     </div>
+                  </div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="space-y-1">
+                    {user.age && (
+                      <div className="flex items-center text-sm text-gray-900">
+                        <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                        <span>{user.age} yaş</span>
+                      </div>
+                    )}
+                    {user.grade && (
+                      <div className="flex items-center text-sm text-gray-600">
+                        <GraduationCap className="w-4 h-4 text-blue-400 mr-2" />
+                        <span className="font-medium">
+                          {user.grade === 'mezun' ? 'Mezun' : `${user.grade}. Sınıf`}
+                        </span>
+                      </div>
+                    )}
+                    {!user.age && !user.grade && (
+                      <span className="text-sm text-gray-400">-</span>
+                    )}
                   </div>
                 </td>
                 <td className="px-6 py-4">

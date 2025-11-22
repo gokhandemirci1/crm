@@ -5,12 +5,18 @@ CREATE TABLE IF NOT EXISTS customers (
   last_name TEXT NOT NULL,
   phone TEXT NOT NULL,
   email TEXT NOT NULL,
+  age INTEGER,
+  grade TEXT,
   exam_score TEXT,
   promo_code TEXT,
   camp TEXT NOT NULL,
   amount DECIMAL(10, 2) NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
+
+-- Eğer tablo zaten varsa, yeni kolonları ekle
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS age INTEGER;
+ALTER TABLE customers ADD COLUMN IF NOT EXISTS grade TEXT;
 
 -- Index ekle (performans için)
 CREATE INDEX IF NOT EXISTS idx_customers_created_at ON customers(created_at DESC);
